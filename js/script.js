@@ -90,15 +90,16 @@ function createSearchBar() {
    searchInput.addEventListener('keyup', (e) => {
       let currentValue = e.target.value.toLowerCase();
       let studentName = document.querySelectorAll('h3');
+      let matchingStudents = [];
       studentName.forEach(studentName => {
          if (studentName.textContent.toLowerCase().includes(currentValue)) {
             studentName.parentNode.parentNode.style.display = 'block';
+            matchingStudents.push(studentName);
          } else {
             studentName.parentNode.parentNode.style.display = 'none';
          }
-      })
-      const numberOfResults = document.querySelectorAll('block');
-      addPagination(numberOfResults.length);
+      });
+      addPagination(matchingStudents);
    });
 }
 

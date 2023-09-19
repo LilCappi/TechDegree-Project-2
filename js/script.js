@@ -15,9 +15,21 @@ FSJS Project 2 - Data Pagination and Filtering
    within specified criteria
 */
 
+const itemsPerPage = 9;
+
+const studentListHTML = `<li class="student-item cf">                                                               
+                           <div class="student-details">
+                              <img class="avatar" src="${listData[i].picture.large}" alt="Profile Picture">
+                              <h3>${listData[i].name.first} ${listData[i].name.last}</h3>
+                              <span class="email">${listData[i].email}</span>
+                           </div>
+                           <div class="joined-details">
+                              <span class="date">Joined ${listData[i].registered.date}</span>
+                           </div>
+                        </li>`;
+
 function showPage(list, page) {
    const listData = list;
-   const itemsPerPage = 9;
    let startIndex = (page - 1) * itemsPerPage;
    let endIndex = startIndex + itemsPerPage;
    const studentList = document.querySelector('.student-list');
@@ -27,16 +39,6 @@ function showPage(list, page) {
          return;                                                                /// the amount of 'itemsPerPage' (in this case, there are 42 items in 'listData' thus the
       } else {                                                                  /// last page only displays six items)
          if ( i >= startIndex && i < endIndex ) {                               /// ***Use of template literal to create each item and insert html into the DOM***
-            const studentListHTML =  `<li class="student-item cf">                                                               
-                                          <div class="student-details">
-                                             <img class="avatar" src="${listData[i].picture.large}" alt="Profile Picture">
-                                             <h3>${listData[i].name.first} ${listData[i].name.last}</h3>
-                                             <span class="email">${listData[i].email}</span>
-                                          </div>
-                                          <div class="joined-details">
-                                             <span class="date">Joined ${listData[i].registered.date}</span>
-                                          </div>
-                                       </li>`;
             studentList.insertAdjacentHTML('beforeend', studentListHTML);
          }
       }
@@ -48,29 +50,30 @@ function showPage(list, page) {
 */
 
 function addPagination(list) {
-   const numberOfPages = Math.ceil(list.length / 9);                   /// sets the number of page buttons needed by dividing the list length by 9 and rounding up
+   const numberOfPages = Math.ceil(list.length / itemsPerPage);                   /// sets the number of page buttons needed by dividing the list length by 9 and rounding up
    const linkList = document.querySelector('.link-list');
    linkList.innerHTML = '';
-   for ( let i = 1; i <= numberOfPages; i++ ) {                        /// Template literal could also be used here but I decided to manually create the elements
-      const li = document.createElement('li');                         /// purely to reiterate some methodology taught within this unit (createElement() and appendChild())
-      const button = document.createElement('button');                 /// line 33-36 could be replaced with:
-      button.type = 'button';                                          ///                     let createBtnHTML = <li><button type="button">${i}</button></li>;
-      button.textContent = i;                                          /// and line 38 with:
-      if (i === 1) {                                                   ///                     createButtonHTML = <li><button type="button" class="active">${i}</button></li>;
-         button.className = 'active';                                  /// and line 46-47 with: 
-      }                                                                ///                     linkList.insertAdjacentHTML('beforeend', createButtonHTML);
-      li.appendChild(button);
-      linkList.appendChild(li);
+   if (list.length === 0) {
+      return;
+   } else {
+      for (let i = 1; i <= numberOfPages; i++) {                        /// Template literal could also be used here but I decided to manually create the elements
+         const li = document.createElement('li');                         /// purely to reiterate some methodology taught within this unit (createElement() and appendChild())
+         const button = document.createElement('button');                 /// line 33-36 could be replaced with:
+         button.type = 'button';                                          ///                     let createBtnHTML = <li><button type="button">${i}</button></li>;
+         button.textContent = i;                                          /// and line 38 with:
+         if (i === 1) {                                                   ///                     createButtonHTML = <li><button type="button" class="active">${i}</button></li>;
+            button.className = 'active';                                  /// and line 46-47 with: 
+         }                                                                ///                     linkList.insertAdjacentHTML('beforeend', createButtonHTML);
+         li.appendChild(button);
+         linkList.appendChild(li);
+      }
    }
    linkList.addEventListener('click', (e) => {                         /// Event listener for button clicks
       if (e.target.tagName === 'BUTTON') {                             
          const button = e.target;
-         const lis = document.querySelectorAll('button');
-         for (i = 0; i < lis.length; i += 1) {                         /// For loop that itterates through all buttons and removes 'active' from the class
-            let btnList = lis[i];
-            if (btnList.className === 'active') {
-               btnList.classList.remove('active');
-            }
+         const isActive = document.querySelector('.active');
+         if (isActive) {
+            isActive.classList.remove('active');
          }
          button.className = 'active';                                  /// Sets 'clicked' buttons class to 'active'
          showPage(list, button.textContent);                           /// Calls 'showPage()' function with parameters
@@ -78,28 +81,34 @@ function addPagination(list) {
    });
 };
 
-function createSearchBar() {
-   const header = document.querySelector('header');
-   const searchBarHTML = `<label for="search" class="student-search">
-                        <span>Search by name</span>
-                        <input id="search" placeholder="Search by name...">
-                        <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
-                     </label>`;
-   header.insertAdjacentHTML('beforeend', searchBarHTML);
-   const searchInput = document.getElementById('search');
-   searchInput.addEventListener('keyup', (e) => {
-      let currentValue = e.target.value.toLowerCase();
-      let studentName = document.querySelectorAll('h3');
-      let matchingStudents = [];
-      studentName.forEach(studentName => {
-         if (studentName.textContent.toLowerCase().includes(currentValue)) {
-            studentName.parentNode.parentNode.style.display = 'block';
-            matchingStudents.push(studentName);
-         } else {
-            studentName.parentNode.parentNode.style.display = 'none';
-         }
-      });
-      addPagination(matchingStudents);
+const searchBarHTML =  `<label for="search" class="student-search">
+                           <span>Search by name</span>
+                           <input id="search" placeholder="Search by name...">
+                           <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
+                        </label>`;
+
+document.querySelector('header').insertAdjacentHTML('beforeend', searchBarHTML);
+
+function searchForStudents(input, list) {
+   const matchingStudents = list.filter(student => {
+      const studentName = `${student.name.first} ${student.name.last}`.toLowerCase();
+      return studentName;
+   });
+}
+
+const searchInput = document.querySelector('input');
+
+searchInput.addEventListener('keyup', (e) => {
+   let inputValue = e.target.value.toLowerCase();
+   let studentName = document.querySelectorAll('h3');
+   let matchingStudents = [];
+   studentName.forEach(studentName => {
+      if (studentName.textContent.toLowerCase().includes(currentValue)) {
+         studentName.parentNode.parentNode.style.display = 'block';
+         matchingStudents.push(studentName);
+      } else {
+         studentName.parentNode.parentNode.style.display = 'none';
+      }
    });
 }
 

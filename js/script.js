@@ -15,10 +15,9 @@ FSJS Project 2 - Data Pagination and Filtering
    within specified criteria
 */
 
-const itemsPerPage = 9;
-
 function showPage(list, page) {
    const listData = list;
+   const itemsPerPage = 9;
    let startIndex = (page - 1) * itemsPerPage;
    let endIndex = startIndex + itemsPerPage;
    const studentList = document.querySelector('.student-list');

@@ -27,7 +27,7 @@ function showPage(list, page) {
       if (i === listData.length) {                                              /// check on 'i' and breaks out of the loop in the event that the last page has less than
          return;                                                                /// the amount of 'itemsPerPage' (in this case, there are 42 items in 'listData' thus the
       } else {                                                                  /// last page only displays six items)
-         if ( i >= startIndex && i < endIndex ) {                               /// ***Use of template literal to create each item and insert html into the DOM***
+         if ( i >= startIndex && i < listData.length ) {                               /// ***Use of template literal to create each item and insert html into the DOM***
             const studentListHTML = `<li class="student-item cf">                                                               
                                        <div class="student-details">
                                           <img class="avatar" src="${listData[i].picture.large}" alt="Profile Picture">

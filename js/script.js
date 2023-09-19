@@ -121,6 +121,6 @@ document.querySelector('input').addEventListener('keyup', () => {               
 });
 
 document.querySelector('.student-search button').addEventListener('click', () => {              /// Event listener for 'click' on search bar button
-   const inputValue = document.querySelector('input').value.toLocaleLowerCase();
+   const inputValue = document.querySelector('input').value.toLowerCase();
    searchForStudents(inputValue, data);
 });

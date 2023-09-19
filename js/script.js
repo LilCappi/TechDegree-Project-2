@@ -18,12 +18,12 @@ FSJS Project 2 - Data Pagination and Filtering
 const itemsPerPage = 9;
 
 function showPage(list, page) {
-   const listData = list;
-   let startIndex = (page - 1) * itemsPerPage;
-   let endIndex = startIndex + itemsPerPage;
+   let startIndex = (page * itemsPerPage) - itemsPerPage;
+   let endIndex = page * itemsPerPage;
    const studentList = document.querySelector('.student-list');
    studentList.innerHTML = '';
    for ( let i = startIndex; i < endIndex; i++ ) {
+      const listData = list;
       if (i === listData.length) {                                              /// check on 'i' and breaks out of the loop in the event that the last page has less than
          return;                                                                /// the amount of 'itemsPerPage' (in this case, there are 42 items in 'listData' thus the
       } else {                                                                  /// last page only displays six items)
@@ -80,6 +80,8 @@ function addPagination(list) {
    });
 };
 
+
+
 showPage(data, 1);                                                     /// Call 'showPage()' function using 'data' and '1' as the parameters
 addPagination(data);                                                   /// Call 'addPagination()' function using 'data' as the parameter
 
@@ -96,7 +98,7 @@ document.querySelector('header').insertAdjacentHTML('beforeend', searchBarHTML);
 
 function searchForStudents(input, list) {                                                       /// Function to filter through data when search bar events are triggered
    const matchingStudents = list.filter(student => {
-      const studentName = `${student.name.first} ${student.name.last}`.toLowerCase();
+      const studentName = `${student.name.first}${student.name.last}`.toLowerCase();
       return studentName.includes(input.toLowerCase());
    });
    const studentNames = document.querySelector('.student-list');
@@ -114,11 +116,11 @@ function searchForStudents(input, list) {                                       
 }
 
 document.querySelector('input').addEventListener('keyup', () => {                               /// Event listener for 'keyup' on search bar
-   const inputValue = document.querySelector('input').value;
-   searchForStudents(inputValue, data);
-})
+   const inputValue = document.querySelector('input').value.toLowerCase();
+      searchForStudents(inputValue, data);
+});
 
 document.querySelector('.student-search button').addEventListener('click', () => {              /// Event listener for 'click' on search bar button
-   const inputValue = document.querySelector('input').value;
+   const inputValue = document.querySelector('input').value.toLocaleLowerCase();
    searchForStudents(inputValue, data);
 });

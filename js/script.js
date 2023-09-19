@@ -17,17 +17,6 @@ FSJS Project 2 - Data Pagination and Filtering
 
 const itemsPerPage = 9;
 
-const studentListHTML = `<li class="student-item cf">                                                               
-                           <div class="student-details">
-                              <img class="avatar" src="${listData[i].picture.large}" alt="Profile Picture">
-                              <h3>${listData[i].name.first} ${listData[i].name.last}</h3>
-                              <span class="email">${listData[i].email}</span>
-                           </div>
-                           <div class="joined-details">
-                              <span class="date">Joined ${listData[i].registered.date}</span>
-                           </div>
-                        </li>`;
-
 function showPage(list, page) {
    const listData = list;
    let startIndex = (page - 1) * itemsPerPage;
@@ -39,6 +28,16 @@ function showPage(list, page) {
          return;                                                                /// the amount of 'itemsPerPage' (in this case, there are 42 items in 'listData' thus the
       } else {                                                                  /// last page only displays six items)
          if ( i >= startIndex && i < endIndex ) {                               /// ***Use of template literal to create each item and insert html into the DOM***
+            const studentListHTML = `<li class="student-item cf">                                                               
+                                       <div class="student-details">
+                                          <img class="avatar" src="${listData[i].picture.large}" alt="Profile Picture">
+                                          <h3>${listData[i].name.first} ${listData[i].name.last}</h3>
+                                          <span class="email">${listData[i].email}</span>
+                                       </div>
+                                       <div class="joined-details">
+                                          <span class="date">Joined ${listData[i].registered.date}</span>
+                                       </div>
+                                    </li>`;
             studentList.insertAdjacentHTML('beforeend', studentListHTML);
          }
       }
@@ -81,38 +80,45 @@ function addPagination(list) {
    });
 };
 
+showPage(data, 1);                                                     /// Call 'showPage()' function using 'data' and '1' as the parameters
+addPagination(data);                                                   /// Call 'addPagination()' function using 'data' as the parameter
+
+
+///***EXTRA CREDIT***
+
 const searchBarHTML =  `<label for="search" class="student-search">
                            <span>Search by name</span>
                            <input id="search" placeholder="Search by name...">
                            <button type="button"><img src="img/icn-search.svg" alt="Search icon"></button>
-                        </label>`;
+                        </label>`;                                                                                /// Search bar HTML
 
-document.querySelector('header').insertAdjacentHTML('beforeend', searchBarHTML);
+document.querySelector('header').insertAdjacentHTML('beforeend', searchBarHTML);                /// Insert search bar into header
 
-function searchForStudents(input, list) {
+function searchForStudents(input, list) {                                                       /// Function to filter through data when search bar events are triggered
    const matchingStudents = list.filter(student => {
       const studentName = `${student.name.first} ${student.name.last}`.toLowerCase();
-      return studentName;
+      return studentName.includes(input.toLowerCase());
    });
+   const studentNames = document.querySelector('.student-list');
+   if (matchingStudents.length === 0) {                                                         /// If statement to check if 'matchingStudents' is empty. 
+      studentNames.innerHTML = '';                                                              /// If so, then clear '.student-list'
+      document.querySelector('.link-list').innerHTML = '';                                      /// Clear '.link-list' 
+      const noStudentsHTML = `<li>                                                              
+                                    <span>No students found</span>
+                              </li>`;                                                           /// Create a new li with only text content
+      studentNames.insertAdjacentHTML('beforeend', noStudentsHTML);                             /// Insert the 'noStudentHTML' into '.student-list'
+   } else {                                                                                     
+      showPage(matchingStudents, 1);                                                            /// If there are matches in 'matchingStudents' then run the results
+      addPagination(matchingStudents);                                                          /// through 'showPage' and addPagination'
+   }
 }
 
-const searchInput = document.querySelector('input');
+document.querySelector('input').addEventListener('keyup', () => {                               /// Event listener for 'keyup' on search bar
+   const inputValue = document.querySelector('input').value;
+   searchForStudents(inputValue, data);
+})
 
-searchInput.addEventListener('keyup', (e) => {
-   let inputValue = e.target.value.toLowerCase();
-   let studentName = document.querySelectorAll('h3');
-   let matchingStudents = [];
-   studentName.forEach(studentName => {
-      if (studentName.textContent.toLowerCase().includes(currentValue)) {
-         studentName.parentNode.parentNode.style.display = 'block';
-         matchingStudents.push(studentName);
-      } else {
-         studentName.parentNode.parentNode.style.display = 'none';
-      }
-   });
-}
-
-showPage(data, 1);                                                     /// Call 'showPage()' function using 'data' and '1' as the parameters
-addPagination(data);                                                   /// Call 'addPagination()' function using 'data' as the parameter
-createSearchBar();
-
+document.querySelector('.student-search button').addEventListener('click', () => {              /// Event listener for 'click' on search bar button
+   const inputValue = document.querySelector('input').value;
+   searchForStudents(inputValue, data);
+});
